@@ -17,6 +17,8 @@ export const CreateUserSchema = yup.object().shape({
     .required("Password is missing")
     .min(8, "Password should have minimum 8 characters!")
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/ , "Use a strong Password!"
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Use a strong Password!"
     ),
 });
+

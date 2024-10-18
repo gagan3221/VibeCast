@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "Server for VibeCast App",
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mongoose": "^8.7.1",
