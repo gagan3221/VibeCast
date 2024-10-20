@@ -22,7 +22,7 @@ export const validate = (schema: yup.ObjectSchema<any>): RequestHandler => {
       next();
     } catch (error) {
       if (error instanceof yup.ValidationError) {
-        // Send a 400 response for validation errors
+        // Send a 422 response for validation errors
         return res.status(422).json({
           error: error.message,
         });
