@@ -1,5 +1,6 @@
 //UserModel : How the configurations of user should look like?
-
+//For Email Verification , sending email token OTP
+//First Hashing the otp and then comparing the hashed otp with actual otp 
 //interface (typescript)
 import { Model, model, ObjectId, Schema } from "mongoose";
 import { hash, compare } from "bcrypt";

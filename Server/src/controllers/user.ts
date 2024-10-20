@@ -7,6 +7,7 @@ import { Mailtrap_password, Mailtrap_user } from "#/utils/variables";
 import { generateToken } from "#/utils/helper";
 import emailVerificationToken from "#/models/emailVerificationToken";
 import user from "#/models/user";
+import { mailTemplate } from "#/mail/template";
 
 export const create: RequestHandler = async (req: CreateUser, res) => {
   const { name, email, password } = req.body;
@@ -35,7 +36,14 @@ export const create: RequestHandler = async (req: CreateUser, res) => {
   transport.sendMail({
     to: newUser.email,
     from: "auth@vibecast.in",
-    html: `<h1>Your OTP is : ${token}</h1>`,
+    html: mailTemplate({
+      headTitle : "VibeCast",
+      token : token ,
+      contentDescription : "Verify your email" ,
+      mainDescription : "Your email Verification OTP is:"
+
+
+    })
   });
   res.status(201).json({ newUser });
 };
