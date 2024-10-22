@@ -2,10 +2,13 @@ import { RequestHandler } from "express";
 
 import { CreateUser, VerifyEmailAddress } from "#/@Types/user";
 import User from "#/models/user";
-import { sendVerificationMail } from "#/utils/mail";
+import { sendForgetPasswordLink, sendVerificationMail } from "#/utils/mail";
 import { generateToken } from "#/utils/helper";
 import emailVerificationToken from "#/models/emailVerificationToken";
 import { isValidObjectId } from "mongoose";
+import passwordResetToken from "#/models/passwordResetToken";
+import crypto from "crypto";
+import { reset_password_link } from "#/utils/variables";
 
 export const create: RequestHandler = async (req: CreateUser, res) => {
   const { name, email, password } = req.body;
@@ -16,9 +19,9 @@ export const create: RequestHandler = async (req: CreateUser, res) => {
   //Send verification email
   const token = generateToken(6);
   await emailVerificationToken.create({
-  owner: newUser._id,
-  token: token,
-});
+    owner: newUser._id,
+    token: token,
+  });
   sendVerificationMail(token, { email, userId: newUser._id.toString() });
 
   res.status(201).json({ newUser: { name, email, id: newUser._id } });
@@ -63,8 +66,7 @@ export const sendReVerificationToken: RequestHandler = async (req, res) => {
   if (!isValidObjectId(userId))
     return res.status(403).json({ error: "Invalid Request!!" });
   const user = await User.findById(userId);
-  if (!user)
-     return res.status(403).json({ error: "Invalid Request!!" });
+  if (!user) return res.status(403).json({ error: "Invalid Request!!" });
   await emailVerificationToken.findOneAndDelete({
     owner: userId,
   });
@@ -77,7 +79,29 @@ export const sendReVerificationToken: RequestHandler = async (req, res) => {
   sendVerificationMail(token, {
     email: user?.email,
     userId: user?._id.toString(),
-    name : user?.name
+    name: user?.name,
   });
-  res.json({message : "Please Check your mail!!"})
+  res.json({ message: "Please Check your mail!!" });
+};
+
+export const generateForgetPasswordLink: RequestHandler = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ error: "Account not found" });
+  // generate the link
+  //https://yourapp.com/auth/reset-password?token=hkajshs&userId=143264
+  const token = crypto.randomBytes(36).toString("hex");
+  await passwordResetToken.findOneAndDelete({
+    owner : user._id
+  })
+  await passwordResetToken.create({
+    owner: user._id,
+    token: token,
+  });
+
+  const resetLink = `${reset_password_link}?token=${token}&userId=${user._id}`;
+  sendForgetPasswordLink({ email: user.email, link: resetLink });
+  res.json({
+    message: "Check your registered email",
+  });
 };
